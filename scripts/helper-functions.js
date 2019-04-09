@@ -8,7 +8,7 @@ function loopScene(callback) {
 
 function render(elements) {
   elements.forEach(element => {
-    if (element.length > 0) {
+    if (element.length !== undefined) {
       element.forEach(element => element.draw());
     } else {
       element.draw();
