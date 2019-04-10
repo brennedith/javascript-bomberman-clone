@@ -1,12 +1,12 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = 64 * 13;
-canvas.height = 54 * 13;
+canvas.width = 50 * 19;
+canvas.height = 50 * 15;
 
 /* Constants */
-const BASE_SPRITE_WIDTH = 64;
-const BASE_SPRITE_HEIGHT = 54;
+const BASE_SPRITE_WIDTH = 50;
+const BASE_SPRITE_HEIGHT = 50;
 const SCREEN_WIDTH = canvas.width;
 const SCREEN_HEIGHT = canvas.height;
 const SCREEN_TILES_WIDTH = SCREEN_WIDTH / BASE_SPRITE_WIDTH;
@@ -18,21 +18,21 @@ const blocksArray = [];
 const bombsArray = [];
 const explosionArray = [];
 
-loopScene((x, y) => {
+loopTiles((x, y) => {
   if (
     x === 0 || // Top Border
     y === 0 || // Left Border
     x === SCREEN_TILES_WIDTH - 1 || // Bottom Border
     y === SCREEN_TILES_HEIGHT - 1 // Right Border
   ) {
-    blocksArray.push(
-      new ObstacleBlock(blockBorderAssets, x * BASE_SPRITE_WIDTH, y * BASE_SPRITE_HEIGHT, ctx)
-    );
-  } else if (x % 3 === 0 && y % 3 === 0) {
+    blocksArray.push(createBorderBlock(x, y, ctx));
+  } else if (x % 2 === 0 && y % 2 === 0) {
     // Middle BlocksArray
-    blocksArray.push(
-      new ObstacleBlock(blockSolidAssets, x * BASE_SPRITE_WIDTH, y * BASE_SPRITE_HEIGHT, ctx)
-    );
+    blocksArray.push(createSolidBlock(x, y, ctx));
+  } else {
+    if ((x > 2 || y > 2) && Math.random() > 0.5) {
+      blocksArray.push(createRemovableBlock(x, y, ctx));
+    }
   }
 });
 
@@ -40,33 +40,46 @@ const scene = new Scene('assets/background.png', ctx);
 
 const hero = new BomberMan(
   bomberManAssets,
-  BASE_SPRITE_WIDTH + 1,
-  BASE_SPRITE_HEIGHT + 1,
-  BASE_SPRITE_WIDTH - 10,
-  BASE_SPRITE_HEIGHT - 10,
+  BASE_SPRITE_WIDTH,
+  BASE_SPRITE_HEIGHT,
+  BASE_SPRITE_WIDTH,
+  BASE_SPRITE_HEIGHT,
   ctx
 );
 
 setInterval(() => {
-  render([scene, explosionArray, blocksArray, bombsArray, hero]);
+  render([scene, explosionArray, bombsArray, blocksArray, hero]);
+
+  const flamesArray = explosionArray.reduce((acc, explosion) => [...acc, ...explosion.flames], []);
+  flamesArray.forEach(flame => {
+    hero.willIDie(flame);
+    blocksArray.forEach((perishable, i) => {
+      if (perishable.willIDie(flame)) {
+        delete blocksArray[i];
+      }
+    });
+  });
 }, 1000 / 60);
 
 document.addEventListener('keydown', e => {
-  const flamesArray = explosionArray.reduce((acc, { flames }) => [...acc, ...flames], []);
-  const obstacles = [...blocksArray, ...bombsArray, ...flamesArray];
+  const obstacles = [...blocksArray].filter(obstacle => obstacle !== undefined);
 
   switch (e.keyCode) {
     case 32:
-      hero.drop(Bomb, bombAssets, bomb => {
+      hero.drop((x, y) => {
+        const bomb = new Bomb(bombAssets, x, y, ctx);
+        const bombIndex = bombsArray.length;
         bombsArray.push(bomb);
+
         bomb.whenDead(() => {
-          bombsArray.shift();
+          delete bombsArray[bombIndex];
 
           const explosion = new Explosion(flamesAssets, bomb.x, bomb.y, ctx);
+          const explosionIndex = explosionArray.length;
           explosionArray.push(explosion);
 
           explosion.whenDead(() => {
-            explosionArray.shift();
+            delete explosionArray[explosionIndex];
           });
         });
       });

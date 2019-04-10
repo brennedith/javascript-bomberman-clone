@@ -12,6 +12,13 @@ const blockSolidAssets = {
   }
 };
 
+const blockRemovableAssets = {
+  image: {
+    src: 'assets/blocks-sprite.png',
+    sprites: [416, 32, 64, 64]
+  }
+};
+
 const bomberManAssets = {
   image: {
     src: 'assets/bomberman-sprite.png',

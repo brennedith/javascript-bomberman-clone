@@ -13,15 +13,17 @@ class Scene {
     const { img, ctx } = this;
 
     // Draws the background image over the x and y axis
-    loopScene((x, y) => {
-      ctx.drawImage(
-        img,
-        x * BASE_SPRITE_WIDTH,
-        y * BASE_SPRITE_HEIGHT,
-        BASE_SPRITE_WIDTH,
-        BASE_SPRITE_HEIGHT
-      );
-    });
+    for (let x = 0; x < SCREEN_TILES_WIDTH; x++) {
+      for (let y = 0; y < SCREEN_TILES_HEIGHT; y++) {
+        ctx.drawImage(
+          img,
+          x * BASE_SPRITE_WIDTH,
+          y * BASE_SPRITE_HEIGHT,
+          BASE_SPRITE_WIDTH,
+          BASE_SPRITE_HEIGHT
+        );
+      }
+    }
   }
 }
 
@@ -46,12 +48,8 @@ class Sprite {
     if (updateFrequency > 0) {
       this.animate();
     }
-  }
 
-  animate() {
-    this.animateInterval = setInterval(() => {
-      this.frame++;
-    }, this.updateFrequency);
+    this.whenDeadCallback = null;
   }
 
   drawSprite(sprites) {
@@ -66,6 +64,18 @@ class Sprite {
 
     ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
   }
+
+  animate() {
+    this.animateInterval = setInterval(() => {
+      this.frame++;
+    }, this.updateFrequency);
+  }
+
+  whenDead(callback) {
+    this.whenDeadCallback = callback;
+  }
+
+  willIDie() {}
 }
 
 class Block extends Sprite {
@@ -93,6 +103,27 @@ class ObstacleBlock extends Block {
 class PerishableBlock extends Block {
   constructor(assets, x, y, ctx) {
     super(assets, x, y, ctx);
+
+    this.isSolid = true;
+  }
+
+  checkCollision(obstacle) {
+    const { x, y } = this;
+
+    // Checks collision
+    return (
+      x <= obstacle.x + obstacle.w &&
+      x + this.w >= obstacle.x &&
+      y <= obstacle.y + obstacle.h &&
+      y + this.h >= obstacle.y
+    );
+  }
+
+  willIDie(obstacle) {
+    if (this.checkCollision(obstacle) && obstacle.isLetal) {
+      return true;
+    }
+    return false;
   }
 }
 
@@ -114,16 +145,27 @@ class BomberMan extends Sprite {
     this.drawSprite(sprites);
   }
 
-  checkCollision(obstacle, coordinates) {
+  checkCollision(obstacle, coordinates = this) {
     const { x, y } = coordinates;
 
     // Checks collision
     return (
-      x <= obstacle.x + obstacle.w &&
-      x + this.w >= obstacle.x &&
-      y <= obstacle.y + obstacle.h &&
-      y + this.h >= obstacle.y
+      x + 1 <= obstacle.x + obstacle.w &&
+      x + this.w - 1 >= obstacle.x &&
+      y + 1 <= obstacle.y + obstacle.h &&
+      y + this.h - 1 >= obstacle.y
     );
+  }
+
+  willIDie(obstacle) {
+    if (this.checkCollision(obstacle) && obstacle.isLetal) {
+      this.direction = 'died';
+      this.status = 'stand';
+      this.frames = 0;
+
+      return true;
+    }
+    return false;
   }
 
   stand() {
@@ -144,16 +186,8 @@ class BomberMan extends Sprite {
     const anySolid = obstacles.some(obstacle => {
       return this.checkCollision(obstacle, newCoordinates) && obstacle.isSolid;
     });
-    const anyLetal = obstacles.some(obstacle => {
-      return this.checkCollision(obstacle, newCoordinates) && obstacle.isLetal;
-    });
 
     if (anySolid) return;
-    if (anyLetal) {
-      this.frames = 0;
-      this.direction = 'died';
-      this.status = 'stand';
-    }
 
     this[axis] = newPosition;
   }
@@ -175,9 +209,31 @@ class BomberMan extends Sprite {
     this.move('x', this.step, obstacles);
   }
 
-  drop(Type, assets, callback) {
-    const instance = new Type(assets, this.x, this.y, ctx);
-    callback(instance);
+  drop(callback) {
+    callback(this.x, this.y);
+  }
+}
+
+class Bomb extends Sprite {
+  constructor(assets, x, y, ctx, updateFrequency = 2000 / 3) {
+    super(assets, x, y, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx, updateFrequency);
+
+    this.assets = assets;
+
+    this.diesTimeout = null;
+    this.preparingToDie();
+  }
+
+  draw() {
+    const { sprites } = this.assets.image;
+
+    this.drawSprite(sprites);
+  }
+
+  preparingToDie() {
+    this.diesTimeout = setTimeout(() => {
+      this.whenDeadCallback();
+    }, 2000);
   }
 }
 
@@ -216,8 +272,8 @@ class Explosion {
       new Flame(assets, x, y + BASE_SPRITE_HEIGHT * 2, 'horizontal', 'end', ctx)
     ];
 
-    this.whenDeadCallback = null;
     this.diesTimeout = null;
+    this.whenDeadCallback = null;
     this.preparingToDie();
   }
 
@@ -225,41 +281,13 @@ class Explosion {
     this.flames.forEach(flame => flame.draw());
   }
 
-  preparingToDie() {
-    this.diesTimeout = setTimeout(() => {
-      this.whenDeadCallback();
-    }, 750);
-  }
-
   whenDead(callback) {
     this.whenDeadCallback = callback;
-  }
-}
-
-class Bomb extends Sprite {
-  constructor(assets, x, y, ctx, updateFrequency = 2000 / 3) {
-    super(assets, x, y, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx, updateFrequency);
-
-    this.assets = assets;
-
-    this.whenDeadCallback = null;
-    this.diesTimeout = null;
-    this.preparingToDie();
   }
 
   preparingToDie() {
     this.diesTimeout = setTimeout(() => {
       this.whenDeadCallback();
-    }, 2000);
-  }
-
-  whenDead(callback) {
-    this.whenDeadCallback = callback;
-  }
-
-  draw() {
-    const { sprites } = this.assets.image;
-
-    this.drawSprite(sprites);
+    }, 750);
   }
 }

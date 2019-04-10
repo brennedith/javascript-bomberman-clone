@@ -1,4 +1,14 @@
-function loopScene(callback) {
+function render(elements) {
+  elements.forEach(element => {
+    if (element.length !== undefined) {
+      element.forEach(element => element.draw());
+    } else if (element !== undefined) {
+      element.draw();
+    }
+  });
+}
+
+function loopTiles(callback) {
   for (let x = 0; x < SCREEN_TILES_WIDTH; x++) {
     for (let y = 0; y < SCREEN_TILES_HEIGHT; y++) {
       callback(x, y);
@@ -6,12 +16,19 @@ function loopScene(callback) {
   }
 }
 
-function render(elements) {
-  elements.forEach(element => {
-    if (element.length !== undefined) {
-      element.forEach(element => element.draw());
-    } else {
-      element.draw();
-    }
-  });
+function createBorderBlock(x, y, ctx) {
+  return new ObstacleBlock(blockBorderAssets, x * BASE_SPRITE_WIDTH, y * BASE_SPRITE_HEIGHT, ctx);
+}
+
+function createSolidBlock(x, y, ctx) {
+  return new ObstacleBlock(blockSolidAssets, x * BASE_SPRITE_WIDTH, y * BASE_SPRITE_HEIGHT, ctx);
+}
+
+function createRemovableBlock(x, y, ctx) {
+  return new PerishableBlock(
+    blockRemovableAssets,
+    x * BASE_SPRITE_WIDTH,
+    y * BASE_SPRITE_HEIGHT,
+    ctx
+  );
 }
