@@ -2,9 +2,6 @@ class Scene {
   constructor(img, ctx) {
     this.img = new Image();
     this.img.src = img;
-    this.img.onload = () => {
-      this.draw();
-    };
 
     this.ctx = ctx;
   }
@@ -105,6 +102,15 @@ class PerishableBlock extends Block {
     super(assets, x, y, ctx);
 
     this.isSolid = true;
+
+    this.status = 'alive';
+  }
+
+  draw() {
+    const { assets, status } = this;
+    const sprites = assets.image.sprites[status];
+
+    this.drawSprite(sprites);
   }
 
   checkCollision(obstacle) {
@@ -119,15 +125,22 @@ class PerishableBlock extends Block {
     );
   }
 
+  preparingToDie() {
+    setTimeout(() => {
+      this.whenDeadCallback();
+    }, 500);
+  }
+
   willIDie(obstacle) {
     if (this.checkCollision(obstacle) && obstacle.isLetal) {
-      return true;
+      this.status = 'dead';
+
+      this.preparingToDie();
     }
-    return false;
   }
 }
 
-class BomberMan extends Sprite {
+class Hero extends Sprite {
   constructor(assets, x, y, w, h, ctx, updateFrequency = 300) {
     super(assets, x, y, w, h, ctx, updateFrequency);
 

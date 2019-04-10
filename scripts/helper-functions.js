@@ -32,3 +32,25 @@ function createRemovableBlock(x, y, ctx) {
     ctx
   );
 }
+
+function createPlayer(assets, x, y, ctx) {
+  return new Hero(assets, x, y, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx);
+}
+
+function playerDropsBomb(x, y) {
+  const bomb = new Bomb(bombAssets, x, y, ctx);
+  const bombIndex = bombsArray.length;
+  bombsArray.push(bomb);
+
+  bomb.whenDead(() => {
+    delete bombsArray[bombIndex];
+
+    const explosion = new Explosion(flamesAssets, bomb.x, bomb.y, ctx);
+    const explosionIndex = explosionArray.length;
+    explosionArray.push(explosion);
+
+    explosion.whenDead(() => {
+      delete explosionArray[explosionIndex];
+    });
+  });
+}

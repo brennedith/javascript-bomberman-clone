@@ -1,0 +1,24 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0000de;
+  background-image: url('../assets/body-background.png');
+}
+
+header {
+  display: flex;
+  justify-content: center;
+  height: 23vh;
+}
+
+header img {
+  height: 100%;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+}

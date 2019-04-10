@@ -1,19 +1,22 @@
+/* Constants */
+const BASE_SPRITE_WIDTH = 40;
+const BASE_SPRITE_HEIGHT = 40;
+const SCREEN_TILES_WIDTH = 25;
+const SCREEN_TILES_HEIGHT = 15;
+const SCREEN_WIDTH = BASE_SPRITE_HEIGHT * SCREEN_TILES_WIDTH;
+const SCREEN_HEIGHT = BASE_SPRITE_HEIGHT * SCREEN_TILES_HEIGHT;
+
+/* First interaction with Canvas */
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = 50 * 19;
-canvas.height = 50 * 15;
+canvas.width = SCREEN_WIDTH;
+canvas.height = SCREEN_HEIGHT;
 
-/* Constants */
-const BASE_SPRITE_WIDTH = 50;
-const BASE_SPRITE_HEIGHT = 50;
-const SCREEN_WIDTH = canvas.width;
-const SCREEN_HEIGHT = canvas.height;
-const SCREEN_TILES_WIDTH = SCREEN_WIDTH / BASE_SPRITE_WIDTH;
-const SCREEN_TILES_HEIGHT = SCREEN_HEIGHT / BASE_SPRITE_HEIGHT;
+/* Game Elements */
+let interval;
 
-// Staging Area
-
+const playersArray = [];
 const blocksArray = [];
 const bombsArray = [];
 const explosionArray = [];
@@ -30,33 +33,40 @@ loopTiles((x, y) => {
     // Middle BlocksArray
     blocksArray.push(createSolidBlock(x, y, ctx));
   } else {
-    if ((x > 2 || y > 2) && Math.random() > 0.5) {
-      blocksArray.push(createRemovableBlock(x, y, ctx));
+    if (
+      (x > 2 || y > 2) &&
+      (x < SCREEN_TILES_WIDTH - 3 || y < SCREEN_TILES_HEIGHT - 3) &&
+      Math.random() > 0.75
+    ) {
+      const perishableBlock = createRemovableBlock(x, y, ctx);
+      const perishableBlockIndex = blocksArray.length;
+      blocksArray.push(perishableBlock);
+
+      perishableBlock.whenDead(() => {
+        delete blocksArray[perishableBlockIndex];
+      });
     }
   }
 });
 
 const scene = new Scene('assets/background.png', ctx);
 
-const hero = new BomberMan(
-  bomberManAssets,
-  BASE_SPRITE_WIDTH,
-  BASE_SPRITE_HEIGHT,
-  BASE_SPRITE_WIDTH,
-  BASE_SPRITE_HEIGHT,
+const player1 = createPlayer(hero1Assets, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx);
+const player2 = createPlayer(
+  hero2Assets,
+  SCREEN_WIDTH - BASE_SPRITE_WIDTH * 2,
+  SCREEN_HEIGHT - BASE_SPRITE_HEIGHT * 2,
   ctx
 );
 
-setInterval(() => {
-  render([scene, explosionArray, bombsArray, blocksArray, hero]);
-
+interval = setInterval(() => {
+  render([scene, explosionArray, bombsArray, blocksArray, player1, player2]);
   const flamesArray = explosionArray.reduce((acc, explosion) => [...acc, ...explosion.flames], []);
   flamesArray.forEach(flame => {
-    hero.willIDie(flame);
-    blocksArray.forEach((perishable, i) => {
-      if (perishable.willIDie(flame)) {
-        delete blocksArray[i];
-      }
+    player1.willIDie(flame);
+    player2.willIDie(flame);
+    blocksArray.forEach(perishableBlock => {
+      perishableBlock.willIDie(flame);
     });
   });
 }, 1000 / 60);
@@ -65,45 +75,46 @@ document.addEventListener('keydown', e => {
   const obstacles = [...blocksArray].filter(obstacle => obstacle !== undefined);
 
   switch (e.keyCode) {
-    case 32:
-      hero.drop((x, y) => {
-        const bomb = new Bomb(bombAssets, x, y, ctx);
-        const bombIndex = bombsArray.length;
-        bombsArray.push(bomb);
+    case 69: // Space
+      player1.drop(playerDropsBomb);
+      break;
+    case 87: // W
+      player1.moveUp(obstacles);
+      break;
+    case 83: // Arrow Down
+      player1.moveDown(obstacles);
+      break;
+    case 65: // Arrow Left
+      player1.moveLeft(obstacles);
+      break;
+    case 68: // Arrow Right
+      player1.moveRight(obstacles);
+      break;
 
-        bomb.whenDead(() => {
-          delete bombsArray[bombIndex];
-
-          const explosion = new Explosion(flamesAssets, bomb.x, bomb.y, ctx);
-          const explosionIndex = explosionArray.length;
-          explosionArray.push(explosion);
-
-          explosion.whenDead(() => {
-            delete explosionArray[explosionIndex];
-          });
-        });
-      });
+    case 32: // Space
+      player2.drop(playerDropsBomb);
       break;
-    case 38:
-      hero.moveUp(obstacles);
+    case 38: // Arrow Up
+      player2.moveUp(obstacles);
       break;
-    case 40:
-      hero.moveDown(obstacles);
+    case 40: // Arrow Down
+      player2.moveDown(obstacles);
       break;
-    case 37:
-      hero.moveLeft(obstacles);
+    case 37: // Arrow Left
+      player2.moveLeft(obstacles);
       break;
-    case 39:
-      hero.moveRight(obstacles);
+    case 39: // Arrow Right
+      player2.moveRight(obstacles);
       break;
   }
 });
 document.addEventListener('keyup', e => {
-  hero.stand();
+  player1.stand();
+  player2.stand();
 });
 
 /* TODO
 - Add README.md
-- Create a destroy -perish(?)- method for PerishableBlock
-- Create a destroy -perish(?)- method for BomberMan
+- Smooth hero movement
+- Animate perishable blocks dead
 */
