@@ -149,7 +149,9 @@ class Hero extends Sprite {
     this.directionAxis = 'x';
     this.direction = 'front';
     this.status = 'stand';
-    this.step = 5;
+    this.step = 3;
+
+    this.ammo = 1;
   }
 
   draw() {
@@ -157,6 +159,17 @@ class Hero extends Sprite {
     const sprites = assets.image.sprites[direction][status];
 
     this.drawSprite(sprites);
+  }
+
+  willIDie(obstacle) {
+    if (this.checkCollision(obstacle) && obstacle.isLetal) {
+      this.direction = 'died';
+      this.status = 'stand';
+      this.frames = 0;
+
+      return true;
+    }
+    return false;
   }
 
   checkCollision(obstacle, coordinates = this) {
@@ -171,21 +184,9 @@ class Hero extends Sprite {
     );
   }
 
-  willIDie(obstacle) {
-    if (this.checkCollision(obstacle) && obstacle.isLetal) {
-      this.direction = 'died';
-      this.status = 'stand';
-      this.frames = 0;
-
-      return true;
-    }
-    return false;
-  }
-
   stand() {
     this.status = 'stand';
   }
-
   move(axis, n, obstacles) {
     const { directionAxis } = this;
 
@@ -219,7 +220,6 @@ class Hero extends Sprite {
 
     this.status = 'walk';
   }
-
   moveUp(obstacles) {
     this.direction = 'back';
     this.move('y', -this.step, obstacles);
@@ -242,7 +242,15 @@ class Hero extends Sprite {
   }
 
   drop(callback) {
-    callback(this.x, this.y);
+    if (this.ammo > 0) {
+      callback(this.x, this.y, this);
+    }
+  }
+  decreaseAmmo() {
+    this.ammo--;
+  }
+  increaseAmmo() {
+    this.ammo++;
   }
 }
 
@@ -296,7 +304,7 @@ class Flame extends Sprite {
 
 class Explosion {
   constructor(assets, x, y, ctx) {
-    this.flames = [
+    this.flamesArray = [
       new Flame(assets, x - BASE_SPRITE_SIZE * 2, y, 'vertical', 'start', ctx),
       new Flame(assets, x - BASE_SPRITE_SIZE, y, 'vertical', 'middle', ctx),
       new Flame(assets, x + BASE_SPRITE_SIZE, y, 'vertical', 'middle', ctx),
@@ -314,7 +322,11 @@ class Explosion {
   }
 
   draw() {
-    this.flames.forEach(flame => flame.draw());
+    this.flamesArray.forEach(flame => flame.draw());
+  }
+
+  getFlames() {
+    return this.flamesArray;
   }
 
   whenDead(callback) {

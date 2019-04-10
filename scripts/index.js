@@ -15,7 +15,6 @@ canvas.height = SCREEN_HEIGHT;
 /* Game Elements */
 let interval;
 
-const playersArray = [];
 const blocksArray = [];
 const bombsArray = [];
 const explosionArray = [];
@@ -60,7 +59,11 @@ const player2 = createPlayer(
 
 interval = setInterval(() => {
   render([scene, explosionArray, bombsArray, blocksArray, player1, player2]);
-  const flamesArray = explosionArray.reduce((acc, explosion) => [...acc, ...explosion.flames], []);
+
+  const flamesArray = explosionArray.reduce(
+    (acc, explosion) => [...acc, ...explosion.getFlames()],
+    []
+  );
   flamesArray.forEach(flame => {
     player1.willIDie(flame);
     player2.willIDie(flame);
@@ -68,49 +71,20 @@ interval = setInterval(() => {
       perishableBlock.willIDie(flame);
     });
   });
-}, 1000 / 60);
 
-document.addEventListener('keydown', e => {
   const obstacles = [...blocksArray].filter(obstacle => obstacle !== undefined);
 
-  switch (e.keyCode) {
-    case 69: // Space
-      player1.drop(playerDropsBomb);
-      break;
-    case 87: // W
-      player1.moveUp(obstacles);
-      break;
-    case 83: // Arrow Down
-      player1.moveDown(obstacles);
-      break;
-    case 65: // Arrow Left
-      player1.moveLeft(obstacles);
-      break;
-    case 68: // Arrow Right
-      player1.moveRight(obstacles);
-      break;
-
-    case 32: // Space
-      player2.drop(playerDropsBomb);
-      break;
-    case 38: // Arrow Up
-      player2.moveUp(obstacles);
-      break;
-    case 40: // Arrow Down
-      player2.moveDown(obstacles);
-      break;
-    case 37: // Arrow Left
-      player2.moveLeft(obstacles);
-      break;
-    case 39: // Arrow Right
-      player2.moveRight(obstacles);
-      break;
-  }
-});
-document.addEventListener('keyup', e => {
-  player1.stand();
-  player2.stand();
-});
+  if (Key.isDown(Key.E)) player1.drop(playerDropsBomb);
+  if (Key.isDown(Key.W)) player1.moveUp(obstacles);
+  if (Key.isDown(Key.S)) player1.moveDown(obstacles);
+  if (Key.isDown(Key.A)) player1.moveLeft(obstacles);
+  if (Key.isDown(Key.D)) player1.moveRight(obstacles);
+  if (Key.isDown(Key.SPACE)) player2.drop(playerDropsBomb);
+  if (Key.isDown(Key.UP)) player2.moveUp(obstacles);
+  if (Key.isDown(Key.DOWN)) player2.moveDown(obstacles);
+  if (Key.isDown(Key.LEFT)) player2.moveLeft(obstacles);
+  if (Key.isDown(Key.RIGHT)) player2.moveRight(obstacles);
+}, 1000 / 60);
 
 /* TODO
 - Add README.md

@@ -32,7 +32,8 @@ function createPlayer(assets, x, y, ctx) {
   return new Hero(assets, x, y, BASE_SPRITE_SIZE, BASE_SPRITE_SIZE, ctx);
 }
 
-function playerDropsBomb(x, y) {
+function playerDropsBomb(x, y, player) {
+  player.decreaseAmmo();
   const bomb = new Bomb(bombAssets, x, y, ctx);
   const bombIndex = bombsArray.length;
   bombsArray.push(bomb);
@@ -47,5 +48,7 @@ function playerDropsBomb(x, y) {
     explosion.whenDead(() => {
       delete explosionArray[explosionIndex];
     });
+
+    player.increaseAmmo();
   });
 }
