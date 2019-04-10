@@ -49,7 +49,7 @@ loopTiles((x, y) => {
   }
 });
 
-const scene = new Scene('assets/background.png', ctx);
+const scene = new Scene('assets/images/background.png', ctx);
 
 const player1 = createPlayer(hero1Assets, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx);
 const player2 = createPlayer(

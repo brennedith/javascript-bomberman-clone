@@ -233,6 +233,9 @@ class Bomb extends Sprite {
 
     this.assets = assets;
 
+    this.audio = new Audio();
+    this.audio.src = assets.audio.src;
+
     this.diesTimeout = null;
     this.preparingToDie();
   }
@@ -245,6 +248,7 @@ class Bomb extends Sprite {
 
   preparingToDie() {
     this.diesTimeout = setTimeout(() => {
+      this.audio.play();
       this.whenDeadCallback();
     }, 2000);
   }

@@ -1,20 +1,20 @@
 const blockBorderAssets = {
   image: {
-    src: 'assets/blocks-sprite.png',
+    src: 'assets/images/blocks-sprite.png',
     sprites: [160, 32, 64, 64]
   }
 };
 
 const blockSolidAssets = {
   image: {
-    src: 'assets/blocks-sprite.png',
+    src: 'assets/images/blocks-sprite.png',
     sprites: [288, 32, 64, 64]
   }
 };
 
 const blockRemovableAssets = {
   image: {
-    src: 'assets/blocks-sprite.png',
+    src: 'assets/images/blocks-sprite.png',
     sprites: {
       alive: [416, 32, 64, 64],
       dead: [544, 32, 64, 64]
@@ -24,7 +24,7 @@ const blockRemovableAssets = {
 
 const hero1Assets = {
   image: {
-    src: 'assets/hero1-sprite.png',
+    src: 'assets/images/hero1-sprite.png',
     sprites: {
       front: {
         stand: [32, 14, 64, 99],
@@ -62,7 +62,7 @@ const hero1Assets = {
 
 const hero2Assets = {
   image: {
-    src: 'assets/hero2-sprite.png',
+    src: 'assets/images/hero2-sprite.png',
     sprites: {
       front: {
         stand: [32, 14, 64, 99],
@@ -100,14 +100,17 @@ const hero2Assets = {
 
 const bombAssets = {
   image: {
-    src: 'assets/bomb-sprite.png',
+    src: 'assets/images/bomb-sprite.png',
     sprites: [[288, 32, 64, 64], [160, 32, 64, 64], [32, 32, 64, 64]]
+  },
+  audio: {
+    src: 'assets/sounds/bomb-explosion.wav'
   }
 };
 
 const flamesAssets = {
   image: {
-    src: 'assets/flames-sprite.png',
+    src: 'assets/images/flames-sprite.png',
     sprites: {
       center: {
         center: [32, 32, 64, 64]
