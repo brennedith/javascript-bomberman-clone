@@ -1,19 +1,34 @@
 class Scene {
-  constructor(img, ctx) {
+  constructor(assets, ctx) {
+    this.assets = assets;
+
     this.img = new Image();
-    this.img.src = img;
+    this.img.src = assets.image.src;
+
+    this.audio = new Audio();
+    this.audio.src = assets.audio.src;
+    this.audio.addEventListener('ended', () => {
+      this.audio.currentTime = 0;
+      this.audio.play();
+    });
+    this.audio.play();
 
     this.ctx = ctx;
   }
 
   draw() {
-    const { img, ctx } = this;
+    const { assets, img, ctx } = this;
+    const [sx, sy, sw, sh] = assets.image.sprites;
 
     // Draws the background image over the x and y axis
     for (let x = 0; x < SCREEN_TILES_WIDTH; x++) {
       for (let y = 0; y < SCREEN_TILES_HEIGHT; y++) {
         ctx.drawImage(
           img,
+          sx,
+          sy,
+          sw,
+          sh,
           x * BASE_SPRITE_SIZE,
           y * BASE_SPRITE_SIZE,
           BASE_SPRITE_SIZE,
@@ -151,6 +166,9 @@ class Hero extends Sprite {
     this.status = 'stand';
     this.step = 3;
 
+    this.diesAudio = new Audio();
+    this.diesAudio.src = assets.audio.died;
+
     this.ammo = 1;
   }
 
@@ -161,11 +179,25 @@ class Hero extends Sprite {
     this.drawSprite(sprites);
   }
 
+  preparingToDie() {
+    setTimeout(() => {
+      this.whenDeadCallback();
+    }, 850);
+  }
+
+  whenDead(callback) {
+    this.whenDeadCallback = callback;
+  }
+
   willIDie(obstacle) {
     if (this.checkCollision(obstacle) && obstacle.isLetal) {
       this.direction = 'died';
       this.status = 'stand';
       this.frames = 0;
+
+      this.diesAudio.play();
+
+      this.preparingToDie();
 
       return true;
     }

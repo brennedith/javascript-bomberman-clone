@@ -15,6 +15,7 @@ canvas.height = SCREEN_HEIGHT;
 /* Game Elements */
 let interval;
 
+const playersArray = [];
 const blocksArray = [];
 const bombsArray = [];
 const explosionArray = [];
@@ -47,23 +48,34 @@ loopTiles((x, y) => {
   }
 });
 
-const scene = new Scene('assets/images/background.png', ctx);
+const scene = new Scene(sceneAssets, ctx);
 
-const player1 = createPlayer(hero1Assets, BASE_SPRITE_SIZE, BASE_SPRITE_SIZE, ctx);
-const player2 = createPlayer(
-  hero2Assets,
-  SCREEN_WIDTH - BASE_SPRITE_SIZE * 2,
-  SCREEN_HEIGHT - BASE_SPRITE_SIZE * 2,
-  ctx
-);
+[
+  [hero1Assets, BASE_SPRITE_SIZE, BASE_SPRITE_SIZE],
+  [hero2Assets, SCREEN_WIDTH - BASE_SPRITE_SIZE * 2, SCREEN_HEIGHT - BASE_SPRITE_SIZE * 2]
+].forEach(playerConfig => {
+  const [assets, x, y] = playerConfig;
+
+  const player = createPlayer(assets, x, y, ctx);
+  const playerIndex = playersArray.length;
+  player.whenDead(() => {
+    delete playersArray[playerIndex];
+    console.log('Player x Won!');
+  });
+
+  playersArray.push(player);
+});
 
 interval = setInterval(() => {
-  render([scene, explosionArray, bombsArray, blocksArray, player1, player2]);
+  const [player1, player2] = playersArray;
+
+  render([scene, explosionArray, bombsArray, blocksArray, playersArray]);
 
   const flamesArray = explosionArray.reduce(
     (acc, explosion) => [...acc, ...explosion.getFlames()],
     []
   );
+
   flamesArray.forEach(flame => {
     player1.willIDie(flame);
     player2.willIDie(flame);
@@ -79,7 +91,8 @@ interval = setInterval(() => {
   if (Key.isDown(Key.S)) player1.moveDown(obstacles);
   if (Key.isDown(Key.A)) player1.moveLeft(obstacles);
   if (Key.isDown(Key.D)) player1.moveRight(obstacles);
-  if (Key.isDown(Key.SPACE)) player2.drop(playerDropsBomb);
+
+  if (Key.isDown(Key.CTRL)) player2.drop(playerDropsBomb);
   if (Key.isDown(Key.UP)) player2.moveUp(obstacles);
   if (Key.isDown(Key.DOWN)) player2.moveDown(obstacles);
   if (Key.isDown(Key.LEFT)) player2.moveLeft(obstacles);

@@ -6,7 +6,7 @@ const Key = {
   S: 83,
   A: 65,
   D: 68,
-  SPACE: 32,
+  CTRL: 17,
   UP: 38,
   DOWN: 40,
   LEFT: 37,
@@ -25,6 +25,8 @@ const Key = {
 
 window.addEventListener('keydown', event => Key.onKeydown(event));
 document.addEventListener('keyup', event => {
+  const [player1, player2] = playersArray;
+
   Key.onKeyup(event);
 
   player1.stand();
