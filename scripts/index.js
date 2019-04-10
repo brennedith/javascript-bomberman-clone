@@ -1,10 +1,9 @@
 /* Constants */
-const BASE_SPRITE_WIDTH = 40;
-const BASE_SPRITE_HEIGHT = 40;
+const BASE_SPRITE_SIZE = 40;
 const SCREEN_TILES_WIDTH = 25;
 const SCREEN_TILES_HEIGHT = 15;
-const SCREEN_WIDTH = BASE_SPRITE_HEIGHT * SCREEN_TILES_WIDTH;
-const SCREEN_HEIGHT = BASE_SPRITE_HEIGHT * SCREEN_TILES_HEIGHT;
+const SCREEN_WIDTH = BASE_SPRITE_SIZE * SCREEN_TILES_WIDTH;
+const SCREEN_HEIGHT = BASE_SPRITE_SIZE * SCREEN_TILES_HEIGHT;
 
 /* First interaction with Canvas */
 const canvas = document.querySelector('canvas');
@@ -51,11 +50,11 @@ loopTiles((x, y) => {
 
 const scene = new Scene('assets/images/background.png', ctx);
 
-const player1 = createPlayer(hero1Assets, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx);
+const player1 = createPlayer(hero1Assets, BASE_SPRITE_SIZE, BASE_SPRITE_SIZE, ctx);
 const player2 = createPlayer(
   hero2Assets,
-  SCREEN_WIDTH - BASE_SPRITE_WIDTH * 2,
-  SCREEN_HEIGHT - BASE_SPRITE_HEIGHT * 2,
+  SCREEN_WIDTH - BASE_SPRITE_SIZE * 2,
+  SCREEN_HEIGHT - BASE_SPRITE_SIZE * 2,
   ctx
 );
 
@@ -115,6 +114,4 @@ document.addEventListener('keyup', e => {
 
 /* TODO
 - Add README.md
-- Smooth hero movement
-- Animate perishable blocks dead
 */

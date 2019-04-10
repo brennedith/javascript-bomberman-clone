@@ -17,24 +17,19 @@ function loopTiles(callback) {
 }
 
 function createBorderBlock(x, y, ctx) {
-  return new ObstacleBlock(blockBorderAssets, x * BASE_SPRITE_WIDTH, y * BASE_SPRITE_HEIGHT, ctx);
+  return new ObstacleBlock(blockBorderAssets, x * BASE_SPRITE_SIZE, y * BASE_SPRITE_SIZE, ctx);
 }
 
 function createSolidBlock(x, y, ctx) {
-  return new ObstacleBlock(blockSolidAssets, x * BASE_SPRITE_WIDTH, y * BASE_SPRITE_HEIGHT, ctx);
+  return new ObstacleBlock(blockSolidAssets, x * BASE_SPRITE_SIZE, y * BASE_SPRITE_SIZE, ctx);
 }
 
 function createRemovableBlock(x, y, ctx) {
-  return new PerishableBlock(
-    blockRemovableAssets,
-    x * BASE_SPRITE_WIDTH,
-    y * BASE_SPRITE_HEIGHT,
-    ctx
-  );
+  return new PerishableBlock(blockRemovableAssets, x * BASE_SPRITE_SIZE, y * BASE_SPRITE_SIZE, ctx);
 }
 
 function createPlayer(assets, x, y, ctx) {
-  return new Hero(assets, x, y, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx);
+  return new Hero(assets, x, y, BASE_SPRITE_SIZE, BASE_SPRITE_SIZE, ctx);
 }
 
 function playerDropsBomb(x, y) {

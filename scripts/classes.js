@@ -14,10 +14,10 @@ class Scene {
       for (let y = 0; y < SCREEN_TILES_HEIGHT; y++) {
         ctx.drawImage(
           img,
-          x * BASE_SPRITE_WIDTH,
-          y * BASE_SPRITE_HEIGHT,
-          BASE_SPRITE_WIDTH,
-          BASE_SPRITE_HEIGHT
+          x * BASE_SPRITE_SIZE,
+          y * BASE_SPRITE_SIZE,
+          BASE_SPRITE_SIZE,
+          BASE_SPRITE_SIZE
         );
       }
     }
@@ -77,7 +77,7 @@ class Sprite {
 
 class Block extends Sprite {
   constructor(assets, x, y, ctx) {
-    super(assets, x, y, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx, 0);
+    super(assets, x, y, BASE_SPRITE_SIZE, BASE_SPRITE_SIZE, ctx, 0);
 
     this.assets = assets;
 
@@ -118,10 +118,10 @@ class PerishableBlock extends Block {
 
     // Checks collision
     return (
-      x <= obstacle.x + obstacle.w &&
-      x + this.w >= obstacle.x &&
-      y <= obstacle.y + obstacle.h &&
-      y + this.h >= obstacle.y
+      x <= obstacle.x + obstacle.w / 2 &&
+      x + this.w / 2 >= obstacle.x &&
+      y <= obstacle.y + obstacle.h / 2 &&
+      y + this.h / 2 >= obstacle.y
     );
   }
 
@@ -146,6 +146,7 @@ class Hero extends Sprite {
 
     this.assets = assets;
 
+    this.directionAxis = 'x';
     this.direction = 'front';
     this.status = 'stand';
     this.step = 5;
@@ -186,14 +187,25 @@ class Hero extends Sprite {
   }
 
   move(axis, n, obstacles) {
-    this.status = 'walk';
+    const { directionAxis } = this;
 
     const opositeAxis = axis === 'x' ? 'y' : 'x';
     const newPosition = this[axis] + n;
     const oldOpositePosition = this[opositeAxis];
+    let newOpositePosition = oldOpositePosition;
+
+    if (directionAxis !== axis) {
+      let overlap = (this[directionAxis] % BASE_SPRITE_SIZE) / BASE_SPRITE_SIZE;
+      overlap = overlap <= 0.25 ? 0 : overlap >= 0.75 ? 1 : overlap;
+
+      newOpositePosition =
+        Math.floor(oldOpositePosition / BASE_SPRITE_SIZE) * BASE_SPRITE_SIZE +
+        overlap * BASE_SPRITE_SIZE;
+    }
+
     const newCoordinates = {
       [axis]: newPosition,
-      [opositeAxis]: oldOpositePosition
+      [opositeAxis]: newOpositePosition
     };
 
     const anySolid = obstacles.some(obstacle => {
@@ -203,23 +215,30 @@ class Hero extends Sprite {
     if (anySolid) return;
 
     this[axis] = newPosition;
+    this[opositeAxis] = newOpositePosition;
+
+    this.status = 'walk';
   }
 
   moveUp(obstacles) {
     this.direction = 'back';
     this.move('y', -this.step, obstacles);
+    this.directionAxis = 'y';
   }
   moveDown(obstacles) {
     this.direction = 'front';
     this.move('y', this.step, obstacles);
+    this.directionAxis = 'y';
   }
   moveLeft(obstacles) {
     this.direction = 'left';
     this.move('x', -this.step, obstacles);
+    this.directionAxis = 'x';
   }
   moveRight(obstacles) {
     this.direction = 'right';
     this.move('x', this.step, obstacles);
+    this.directionAxis = 'x';
   }
 
   drop(callback) {
@@ -229,7 +248,7 @@ class Hero extends Sprite {
 
 class Bomb extends Sprite {
   constructor(assets, x, y, ctx, updateFrequency = 2000 / 3) {
-    super(assets, x, y, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx, updateFrequency);
+    super(assets, x, y, BASE_SPRITE_SIZE, BASE_SPRITE_SIZE, ctx, updateFrequency);
 
     this.assets = assets;
 
@@ -256,7 +275,7 @@ class Bomb extends Sprite {
 
 class Flame extends Sprite {
   constructor(assets, x, y, direction, type, ctx) {
-    super(assets, x, y, BASE_SPRITE_WIDTH, BASE_SPRITE_HEIGHT, ctx);
+    super(assets, x, y, BASE_SPRITE_SIZE, BASE_SPRITE_SIZE, ctx);
 
     this.assets = assets;
 
@@ -278,15 +297,15 @@ class Flame extends Sprite {
 class Explosion {
   constructor(assets, x, y, ctx) {
     this.flames = [
-      new Flame(assets, x - BASE_SPRITE_WIDTH * 2, y, 'vertical', 'start', ctx),
-      new Flame(assets, x - BASE_SPRITE_WIDTH, y, 'vertical', 'middle', ctx),
-      new Flame(assets, x + BASE_SPRITE_WIDTH, y, 'vertical', 'middle', ctx),
-      new Flame(assets, x + BASE_SPRITE_WIDTH * 2, y, 'vertical', 'end', ctx),
+      new Flame(assets, x - BASE_SPRITE_SIZE * 2, y, 'vertical', 'start', ctx),
+      new Flame(assets, x - BASE_SPRITE_SIZE, y, 'vertical', 'middle', ctx),
+      new Flame(assets, x + BASE_SPRITE_SIZE, y, 'vertical', 'middle', ctx),
+      new Flame(assets, x + BASE_SPRITE_SIZE * 2, y, 'vertical', 'end', ctx),
       new Flame(assets, x, y, 'center', 'center', ctx),
-      new Flame(assets, x, y - BASE_SPRITE_HEIGHT * 2, 'horizontal', 'start', ctx),
-      new Flame(assets, x, y - BASE_SPRITE_HEIGHT, 'horizontal', 'middle', ctx),
-      new Flame(assets, x, y + BASE_SPRITE_HEIGHT, 'horizontal', 'middle', ctx),
-      new Flame(assets, x, y + BASE_SPRITE_HEIGHT * 2, 'horizontal', 'end', ctx)
+      new Flame(assets, x, y - BASE_SPRITE_SIZE * 2, 'horizontal', 'start', ctx),
+      new Flame(assets, x, y - BASE_SPRITE_SIZE, 'horizontal', 'middle', ctx),
+      new Flame(assets, x, y + BASE_SPRITE_SIZE, 'horizontal', 'middle', ctx),
+      new Flame(assets, x, y + BASE_SPRITE_SIZE * 2, 'horizontal', 'end', ctx)
     ];
 
     this.diesTimeout = null;
