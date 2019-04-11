@@ -86,7 +86,7 @@ function level1() {
     }
 
     if (player2) {
-      if (Key.isDown(Key.CTRL)) player2.drop(playerDropsBomb);
+      if (Key.isDown(Key.SHIFT)) player2.drop(playerDropsBomb);
       if (Key.isDown(Key.UP)) player2.moveUp(obstacles);
       if (Key.isDown(Key.DOWN)) player2.moveDown(obstacles);
       if (Key.isDown(Key.LEFT)) player2.moveLeft(obstacles);
