@@ -5,13 +5,13 @@ class Scene {
     this.img = new Image();
     this.img.src = assets.image.src;
 
-    this.audio = new Audio();
-    this.audio.src = assets.audio.src;
-    this.audio.addEventListener('ended', () => {
-      this.audio.currentTime = 0;
-      this.audio.play();
+    this.sceneAudio = new Audio();
+    this.sceneAudio.src = assets.audio.src;
+    this.sceneAudio.addEventListener('ended', () => {
+      this.sceneAudio.currentTime = 0;
+      this.sceneAudio.play();
     });
-    this.audio.play();
+    this.sceneAudio.play();
 
     this.ctx = ctx;
   }
@@ -36,6 +36,10 @@ class Scene {
         );
       }
     }
+  }
+
+  endScene() {
+    this.sceneAudio.pause();
   }
 }
 
@@ -161,6 +165,8 @@ class Hero extends Sprite {
 
     this.assets = assets;
 
+    this.alive = true;
+
     this.directionAxis = 'x';
     this.direction = 'front';
     this.status = 'stand';
@@ -180,6 +186,7 @@ class Hero extends Sprite {
   }
 
   preparingToDie() {
+    this.alive = false;
     setTimeout(() => {
       this.whenDeadCallback();
     }, 850);
@@ -214,6 +221,10 @@ class Hero extends Sprite {
       y + 1 <= obstacle.y + obstacle.h &&
       y + this.h - 1 >= obstacle.y
     );
+  }
+
+  won() {
+    this.direction = 'won';
   }
 
   stand() {
@@ -253,21 +264,29 @@ class Hero extends Sprite {
     this.status = 'walk';
   }
   moveUp(obstacles) {
+    if (!this.alive) return;
+
     this.direction = 'back';
     this.move('y', -this.step, obstacles);
     this.directionAxis = 'y';
   }
   moveDown(obstacles) {
+    if (!this.alive) return;
+
     this.direction = 'front';
     this.move('y', this.step, obstacles);
     this.directionAxis = 'y';
   }
   moveLeft(obstacles) {
+    if (!this.alive) return;
+
     this.direction = 'left';
     this.move('x', -this.step, obstacles);
     this.directionAxis = 'x';
   }
   moveRight(obstacles) {
+    if (!this.alive) return;
+
     this.direction = 'right';
     this.move('x', this.step, obstacles);
     this.directionAxis = 'x';

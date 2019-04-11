@@ -23,12 +23,19 @@ const Key = {
   }
 };
 
-window.addEventListener('keydown', event => Key.onKeydown(event));
+window.addEventListener('keydown', event => {
+  if (!game.playing && event.keyCode === 13) {
+    gameStart(level1);
+  }
+
+  if (game.playing) {
+    Key.onKeydown(event);
+  }
+});
 document.addEventListener('keyup', event => {
-  const [player1, player2] = playersArray;
+  if (game.playing) {
+    Key.onKeyup(event);
+  }
 
-  Key.onKeyup(event);
-
-  player1.stand();
-  player2.stand();
+  getDefined(playersArray).forEach(player => player.stand());
 });
