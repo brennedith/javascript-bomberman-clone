@@ -21,4 +21,28 @@ header img {
 main {
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+p {
+  text-align: center;
+  margin: 25px;
+}
+
+.key {
+  font-family: sans-serif;
+  font-size: 1.4em;
+  background-color: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #000000;
+  box-shadow: 5px 5px 0px #000000;
+  border-radius: 10px;
+}
+
+.key.bomb {
+  background-image: url('../assets/images/bomb-sprite.png');
+  background-position-x: -72px;
+  background-position-y: -6px;
+  background-size: 100px;
+  background-repeat: no-repeat;
 }
