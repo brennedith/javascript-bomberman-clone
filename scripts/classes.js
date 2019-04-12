@@ -132,15 +132,15 @@ class PerishableBlock extends Block {
     this.drawSprite(sprites);
   }
 
-  checkCollision(obstacle) {
+  checkDeadlyCollision(obstacle) {
     const { x, y } = this;
 
     // Checks collision
     return (
       x <= obstacle.x + obstacle.w / 2 &&
-      x + this.w / 2 >= obstacle.x &&
+      x + this.w >= obstacle.x + obstacle.w / 4 &&
       y <= obstacle.y + obstacle.h / 2 &&
-      y + this.h / 2 >= obstacle.y
+      y + this.h >= obstacle.y + obstacle.h / 4
     );
   }
 
@@ -151,7 +151,7 @@ class PerishableBlock extends Block {
   }
 
   willIDie(obstacle) {
-    if (this.checkCollision(obstacle) && obstacle.isLetal) {
+    if (this.checkDeadlyCollision(obstacle) && obstacle.isLetal) {
       this.status = 'dead';
 
       this.preparingToDie();
@@ -180,7 +180,12 @@ class Hero extends Sprite {
 
   draw() {
     const { assets, direction, status } = this;
-    const sprites = assets.image.sprites[direction][status];
+    let sprites;
+    if (direction === 'died' || direction === 'won') {
+      sprites = assets.image.sprites[direction];
+    } else {
+      sprites = assets.image.sprites[direction][status];
+    }
 
     this.drawSprite(sprites);
   }
@@ -197,9 +202,8 @@ class Hero extends Sprite {
   }
 
   willIDie(obstacle) {
-    if (this.checkCollision(obstacle) && obstacle.isLetal) {
+    if (this.checkDeadlyCollision(obstacle) && obstacle.isLetal) {
       this.direction = 'died';
-      this.status = 'stand';
       this.frames = 0;
 
       this.diesAudio.play();
@@ -220,6 +224,18 @@ class Hero extends Sprite {
       x + this.w - 1 >= obstacle.x &&
       y + 1 <= obstacle.y + obstacle.h &&
       y + this.h - 1 >= obstacle.y
+    );
+  }
+
+  checkDeadlyCollision(obstacle, coordinates = this) {
+    const { x, y } = coordinates;
+
+    // Checks collision
+    return (
+      x <= obstacle.x + obstacle.w / 2 &&
+      x + this.w >= obstacle.x + obstacle.w / 4 &&
+      y <= obstacle.y + obstacle.h / 2 &&
+      y + this.h >= obstacle.y + obstacle.h / 4
     );
   }
 

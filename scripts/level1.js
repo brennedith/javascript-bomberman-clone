@@ -52,16 +52,19 @@ function level1() {
       gameOver(playersArray, n => {
         playersArray[n].won();
         scene.endScene();
+        toRender.push(new GameOver(n, ctx));
       });
     });
 
     playersArray.push(player);
   });
 
+  toRender = [scene, explosionArray, bombsArray, blocksArray, playersArray];
+
   // Updates the scene and elements
   game.interval = setInterval(() => {
     // Renders scene and all elements
-    render([scene, explosionArray, bombsArray, blocksArray, playersArray]);
+    render(toRender);
 
     // Creates an array of flame objects and checks if they should destroy something
     const flamesArray = explosionArray.reduce(
@@ -77,20 +80,22 @@ function level1() {
     const [player1, player2] = playersArray;
     const obstacles = getDefined(blocksArray);
 
-    if (player1) {
-      if (Key.isDown(Key.E)) player1.drop(playerDropsBomb);
-      if (Key.isDown(Key.W)) player1.moveUp(obstacles);
-      if (Key.isDown(Key.S)) player1.moveDown(obstacles);
-      if (Key.isDown(Key.A)) player1.moveLeft(obstacles);
-      if (Key.isDown(Key.D)) player1.moveRight(obstacles);
-    }
+    if (game.playing) {
+      if (player1) {
+        if (Key.isDown(Key.F)) player1.drop(playerDropsBomb);
+        if (Key.isDown(Key.W)) player1.moveUp(obstacles);
+        if (Key.isDown(Key.S)) player1.moveDown(obstacles);
+        if (Key.isDown(Key.A)) player1.moveLeft(obstacles);
+        if (Key.isDown(Key.D)) player1.moveRight(obstacles);
+      }
 
-    if (player2) {
-      if (Key.isDown(Key.SHIFT)) player2.drop(playerDropsBomb);
-      if (Key.isDown(Key.UP)) player2.moveUp(obstacles);
-      if (Key.isDown(Key.DOWN)) player2.moveDown(obstacles);
-      if (Key.isDown(Key.LEFT)) player2.moveLeft(obstacles);
-      if (Key.isDown(Key.RIGHT)) player2.moveRight(obstacles);
+      if (player2) {
+        if (Key.isDown(Key.SHIFT)) player2.drop(playerDropsBomb);
+        if (Key.isDown(Key.UP)) player2.moveUp(obstacles);
+        if (Key.isDown(Key.DOWN)) player2.moveDown(obstacles);
+        if (Key.isDown(Key.LEFT)) player2.moveLeft(obstacles);
+        if (Key.isDown(Key.RIGHT)) player2.moveRight(obstacles);
+      }
     }
   }, FPS);
 }

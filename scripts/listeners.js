@@ -1,7 +1,8 @@
+// Pressed keys log
 const Key = {
   _pressed: {},
 
-  E: 69,
+  F: 70,
   W: 87,
   S: 83,
   A: 65,
@@ -24,18 +25,23 @@ const Key = {
 };
 
 window.addEventListener('keydown', event => {
-  if (!game.playing && event.keyCode === 13) {
-    gameStart(level1);
-  }
-
   if (game.playing) {
+    // While the game is playing, add to pressed keys log
     Key.onKeydown(event);
+  } else {
+    if (event.keyCode === 13) {
+      // If the game is no playing, run gameStart with Enter
+      gameStart(level1);
+    }
   }
 });
+
 document.addEventListener('keyup', event => {
   if (game.playing) {
+    // While the game is playing, remove from pressed keys log
     Key.onKeyup(event);
   }
 
-  getDefined(playersArray).forEach(player => player.stand());
+  // TODO: Make it part of the Hero class
+  getDefined(playersArray).forEach(player => player.stand()); // Reset player animation
 });

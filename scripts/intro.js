@@ -1,5 +1,5 @@
 class Intro {
-  constructor() {
+  constructor(ctx) {
     this.img = new Image();
     this.img.src = 'assets/images/plane.png';
 
@@ -12,16 +12,15 @@ class Intro {
     this.size = 550;
     this.step = SCREEN_WIDTH / 100;
 
-    this.canPlay = true;
+    this.ctx = ctx;
   }
 
   draw() {
-    const { img, x, y, size, step, n } = this;
+    const { img, x, y, size, step, ctx } = this;
 
     ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    if (y > -200 && this.canPlay) {
-      this.canPlay = false;
+    if (x === 10 && y === -190) {
       this.audio.play();
     }
 
@@ -43,7 +42,7 @@ class Intro {
   }
 }
 
-const intro = new Intro();
+const intro = new Intro(ctx);
 
 game.interval = setInterval(() => {
   intro.draw();

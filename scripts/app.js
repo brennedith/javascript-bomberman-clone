@@ -15,8 +15,9 @@ canvas.height = SCREEN_HEIGHT;
 
 /* Game elements */
 
-let scene, playersArray, blocksArray, bombsArray, explosionArray;
+let scene, playersArray, blocksArray, bombsArray, explosionArray, toRender;
 
 /* TODO
 - Add README.md
+- Refactor the render interval
 */
